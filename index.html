@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+  <title>Sarah's Recipe Planner &bull; Weekly Meal &amp; Recipe Planner</title>
+  <meta name="description" content="Clean, interactive weekly meal and recipe planner with touch & drag-and-drop scheduling, combined shopping lists, and local backup.">
+
+  <!-- Mobile & Tablet PWA / Standalone Optimization (Android & iPad) -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Sarah's Planner">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#059669">
+  <meta name="format-detection" content="telephone=no">
+
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Header & Primary Navigation -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand">
+        <!-- Sidebar Toggle Icon for Tablet/Desktop -->
+        <button id="btnToggleSidebarDesktop" class="btn-icon tablet-toggle-btn" title="Toggle recipe sidebar" aria-label="Toggle recipe library">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="9" y1="3" x2="9" y2="21"></line>
+          </svg>
+        </button>
+
+        <div class="brand-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 8h1a4 4 0 0 1 0 8h-1"></path>
+            <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path>
+            <line x1="6" y1="1" x2="6" y2="4"></line>
+            <line x1="10" y1="1" x2="10" y2="4"></line>
+            <line x1="14" y1="1" x2="14" y2="4"></line>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h1>Sarah's Recipe Planner</h1>
+          <span class="brand-tagline">Weekly Meal &amp; Recipe Planner</span>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <!-- Shopping List Button (Header) -->
+        <button id="btnOpenShoppingList" class="btn btn-primary" title="Generate combined weekly shopping list">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="9" cy="21" r="1"></circle>
+            <circle cx="20" cy="21" r="1"></circle>
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+          </svg>
+          <span class="btn-text-responsive">Shopping List</span>
+          <span id="shoppingItemCountBadge" class="badge-count" style="display: none;">0</span>
+        </button>
+
+        <!-- Clear Week Button -->
+        <button id="btnClearWeek" class="btn btn-secondary text-danger" title="Reset this week's scheduled meals">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="3 6 5 6 21 6"></polyline>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+          </svg>
+          <span class="desktop-tablet-only">Clear Week</span>
+        </button>
+
+        <!-- Backup Action Buttons -->
+        <div class="backup-actions">
+          <button id="btnExportBackup" class="btn btn-ghost" title="Export meal plan and recipes as JSON backup">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            <span class="desktop-only">Export Backup</span>
+          </button>
+
+          <label for="importBackupInput" class="btn btn-ghost cursor-pointer" title="Import meal plan from JSON backup">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="17 8 12 3 7 8"></polyline>
+              <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+            <span class="desktop-only">Import Backup</span>
+          </label>
+          <input type="file" id="importBackupInput" accept=".json" style="display: none;">
+        </div>
+
+        <!-- Mobile/Tablet Drawer Toggle Button -->
+        <button id="btnToggleMobileSidebar" class="btn btn-secondary mobile-tablet-trigger" aria-label="Open recipes drawer">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+          <span>Recipes</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile / Tablet Overlay for Sidebar Drawer -->
+  <div id="sidebarBackdrop" class="drawer-backdrop"></div>
+
+  <!-- Main Application Body -->
+  <div class="app-layout">
+    <!-- Left Sidebar: Recipe Library -->
+    <aside id="recipeSidebar" class="recipe-sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-title-row">
+          <div class="sidebar-heading">
+            <h2>My Recipes</h2>
+            <span id="recipeCountBadge" class="pill-badge">6 recipes</span>
+          </div>
+          <button id="btnCloseMobileSidebar" class="btn-icon drawer-close-btn" aria-label="Close recipes drawer">
+            &times;
+          </button>
+        </div>
+        <p class="sidebar-subtitle">Drag or touch-drag recipes to schedule, or tap any calendar slot directly.</p>
+
+        <!-- Search & Filter Controls -->
+        <div class="recipe-filter-box">
+          <div class="search-input-wrap">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" id="recipeSearchInput" placeholder="Search recipes by name or ingredient..." autocomplete="off">
+            <button id="btnClearSearch" class="btn-clear-search" style="display: none;" title="Clear search">&times;</button>
+          </div>
+
+          <div class="category-pills">
+            <button class="cat-pill active" data-category="all">All</button>
+            <button class="cat-pill" data-category="Breakfast">Breakfast</button>
+            <button class="cat-pill" data-category="Lunch">Lunch</button>
+            <button class="cat-pill" data-category="Dinner">Dinner</button>
+          </div>
+        </div>
+
+        <button id="btnOpenAddRecipeModal" class="btn btn-add-recipe">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          <span>Add New Recipe</span>
+        </button>
+      </div>
+
+      <!-- Scrollable Recipe Cards List -->
+      <div id="recipeListContainer" class="recipe-list-container">
+        <!-- Dynamically rendered recipe cards -->
+      </div>
+    </aside>
+
+    <!-- Main Content: Weekly Calendar Grid -->
+    <main class="calendar-main" id="calendarMain">
+      <div class="calendar-toolbar">
+        <div class="calendar-heading">
+          <h2>Weekly Meal Schedule</h2>
+          <span class="calendar-subtitle">Plan your Monday to Sunday culinary week</span>
+        </div>
+        <div class="calendar-stats">
+          <span id="scheduledStatsBadge" class="stats-badge">0 / 21 meals scheduled</span>
+        </div>
+      </div>
+
+      <!-- Quick Day Filter Tabs for Android Phones & iPad Portrait -->
+      <div class="mobile-day-tabs" id="mobileDayTabs">
+        <button class="day-tab-btn active" data-day="all">All Days</button>
+        <button class="day-tab-btn" data-day="mon">Mon</button>
+        <button class="day-tab-btn" data-day="tue">Tue</button>
+        <button class="day-tab-btn" data-day="wed">Wed</button>
+        <button class="day-tab-btn" data-day="thu">Thu</button>
+        <button class="day-tab-btn" data-day="fri">Fri</button>
+        <button class="day-tab-btn" data-day="sat">Sat</button>
+        <button class="day-tab-btn" data-day="sun">Sun</button>
+      </div>
+
+      <!-- 7-Day Calendar Grid -->
+      <div id="weeklyGrid" class="weekly-grid">
+        <!-- Rendered via JavaScript for Monday through Sunday -->
+      </div>
+    </main>
+  </div>
+
+  <!-- Modern Bottom Navigation for Android & iPad / Mobile Devices -->
+  <nav class="mobile-bottom-nav" aria-label="Mobile Navigation">
+    <button id="navBtnCalendar" class="nav-item active">
+      <div class="nav-icon-wrap">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+          <line x1="16" y1="2" x2="16" y2="6"></line>
+          <line x1="8" y1="2" x2="8" y2="6"></line>
+          <line x1="3" y1="10" x2="21" y2="10"></line>
+        </svg>
+      </div>
+      <span>Plan</span>
+    </button>
+
+    <button id="navBtnRecipes" class="nav-item">
+      <div class="nav-icon-wrap">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+        </svg>
+      </div>
+      <span>Recipes</span>
+    </button>
+
+    <button id="navBtnAddRecipe" class="nav-item nav-item-add" aria-label="Add new recipe">
+      <div class="nav-add-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+      </div>
+      <span>Add</span>
+    </button>
+
+    <button id="navBtnShopping" class="nav-item">
+      <div class="nav-icon-wrap">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="9" cy="21" r="1"></circle>
+          <circle cx="20" cy="21" r="1"></circle>
+          <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+        </svg>
+        <span id="navShoppingBadge" class="nav-badge" style="display: none;">0</span>
+      </div>
+      <span>Shopping</span>
+    </button>
+  </nav>
+
+  <!-- MODAL: Add / Edit Recipe -->
+  <div id="recipeModal" class="modal-backdrop" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="dialog" aria-labelledby="recipeModalTitle">
+      <div class="modal-drag-indicator"></div>
+      <div class="modal-header">
+        <h3 id="recipeModalTitle">Create New Recipe</h3>
+        <button class="btn-close-modal" data-close-modal="recipeModal" aria-label="Close modal">&times;</button>
+      </div>
+      <form id="recipeForm" class="modal-body">
+        <div class="form-row">
+          <div class="form-group flex-2">
+            <label for="recipeTitleInput">Recipe Name <span class="required">*</span></label>
+            <input type="text" id="recipeTitleInput" placeholder="e.g. Shepherd's Pie or Berry Smoothie" required>
+          </div>
+          <div class="form-group flex-1">
+            <label for="recipeCategorySelect">Meal Slot Type <span class="required">*</span></label>
+            <select id="recipeCategorySelect" required>
+              <option value="Breakfast">Breakfast</option>
+              <option value="Lunch">Lunch</option>
+              <option value="Dinner" selected>Dinner</option>
+              <option value="Any">Any Meal</option>
+            </select>
+          </div>
+          <div class="form-group flex-1">
+            <label for="recipePrepTimeInput">Prep Time (mins) <span class="required">*</span></label>
+            <input type="number" id="recipePrepTimeInput" min="1" max="600" placeholder="e.g. 25" required>
+          </div>
+        </div>
+
+        <!-- Ingredients Section -->
+        <div class="form-section">
+          <div class="section-title-row">
+            <h4>Structured Ingredients <span class="required">*</span></h4>
+            <span class="section-hint">Numeric quantities and metric UK units are combined in your shopping list</span>
+          </div>
+
+          <div id="ingredientRowsContainer" class="ingredient-rows-container">
+            <!-- Dynamic ingredient input rows will be appended here -->
+          </div>
+
+          <button type="button" id="btnAddIngredientRow" class="btn btn-secondary btn-sm mt-2">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            <span>+ Add Another Ingredient</span>
+          </button>
+        </div>
+
+        <!-- Optional Recipe Instructions / Notes -->
+        <div class="form-group mt-3">
+          <label for="recipeNotesInput">Preparation Notes / Method (Optional)</label>
+          <textarea id="recipeNotesInput" rows="2" placeholder="Brief cooking notes or serving suggestions..."></textarea>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-close-modal="recipeModal">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="btnSaveRecipe">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            <span>Save Recipe</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Recipe Details Viewer -->
+  <div id="recipeDetailModal" class="modal-backdrop" aria-hidden="true">
+    <div class="modal-dialog" role="dialog" aria-labelledby="recipeDetailTitle">
+      <div class="modal-drag-indicator"></div>
+      <div class="modal-header">
+        <h3 id="recipeDetailTitle">Recipe Details</h3>
+        <button class="btn-close-modal" data-close-modal="recipeDetailModal" aria-label="Close modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="recipe-detail-meta">
+          <span id="recipeDetailCategory" class="badge-tag">Dinner</span>
+          <span id="recipeDetailTime" class="detail-time">⏱️ 30 mins</span>
+        </div>
+        <div class="detail-ingredients-block">
+          <h4>Ingredients Needed</h4>
+          <ul id="recipeDetailIngredientList" class="detail-ingredient-list">
+            <!-- List items populated dynamically -->
+          </ul>
+        </div>
+        <div id="recipeDetailNotesBlock" class="detail-notes-block" style="display: none;">
+          <h4>Method &amp; Notes</h4>
+          <p id="recipeDetailNotesText"></p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-close-modal="recipeDetailModal">Close</button>
+        <button type="button" id="btnAssignFromDetail" class="btn btn-primary">
+          <span>Assign to Calendar</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Tap-to-Assign Recipe Picker (Mobile / Touch Friendly) -->
+  <div id="slotPickerModal" class="modal-backdrop" aria-hidden="true">
+    <div class="modal-dialog" role="dialog" aria-labelledby="slotPickerTitle">
+      <div class="modal-drag-indicator"></div>
+      <div class="modal-header">
+        <div>
+          <h3 id="slotPickerTitle">Choose a Recipe</h3>
+          <span id="slotPickerSubtitle" class="modal-subtitle">For Monday Lunch</span>
+        </div>
+        <button class="btn-close-modal" data-close-modal="slotPickerModal" aria-label="Close modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="picker-search-wrap">
+          <input type="text" id="pickerSearchInput" placeholder="Filter recipes by name or ingredients...">
+        </div>
+        <div id="pickerRecipeList" class="picker-recipe-list">
+          <!-- Dynamically populated list of recipes to choose from -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-close-modal="slotPickerModal">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Quick Add to Calendar (from Sidebar Recipe Card) -->
+  <div id="quickAssignModal" class="modal-backdrop" aria-hidden="true">
+    <div class="modal-dialog" role="dialog" aria-labelledby="quickAssignTitle">
+      <div class="modal-drag-indicator"></div>
+      <div class="modal-header">
+        <div>
+          <h3 id="quickAssignTitle">Schedule Recipe</h3>
+          <span id="quickAssignRecipeName" class="modal-subtitle"></span>
+        </div>
+        <button class="btn-close-modal" data-close-modal="quickAssignModal" aria-label="Close modal">&times;</button>
+      </div>
+      <form id="quickAssignForm" class="modal-body">
+        <div class="form-group">
+          <label for="quickAssignDaySelect">Select Day</label>
+          <select id="quickAssignDaySelect" required>
+            <option value="mon">Monday</option>
+            <option value="tue">Tuesday</option>
+            <option value="wed">Wednesday</option>
+            <option value="thu">Thursday</option>
+            <option value="fri">Friday</option>
+            <option value="sat">Saturday</option>
+            <option value="sun">Sunday</option>
+          </select>
+        </div>
+        <div class="form-group mt-3">
+          <label for="quickAssignMealSelect">Select Meal Slot</label>
+          <select id="quickAssignMealSelect" required>
+            <option value="breakfast">Breakfast</option>
+            <option value="lunch">Lunch</option>
+            <option value="dinner">Dinner</option>
+          </select>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-close-modal="quickAssignModal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Add to Schedule</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Combined Shopping List -->
+  <div id="shoppingListModal" class="modal-backdrop" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="dialog" aria-labelledby="shoppingModalTitle">
+      <div class="modal-drag-indicator"></div>
+      <div class="modal-header">
+        <div>
+          <h3 id="shoppingModalTitle">Weekly Shopping List</h3>
+          <span id="shoppingModalSubtitle" class="modal-subtitle">Ingredients consolidated from your weekly schedule</span>
+        </div>
+        <button class="btn-close-modal" data-close-modal="shoppingListModal" aria-label="Close modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <!-- Shopping List Actions & Stats Bar -->
+        <div class="shopping-toolbar">
+          <div class="shopping-stats">
+            <span id="shoppingProgressText">0 of 0 items checked</span>
+            <div class="progress-bar-track">
+              <div id="shoppingProgressBar" class="progress-bar-fill" style="width: 0%;"></div>
+            </div>
+          </div>
+          <div class="shopping-actions-group">
+            <button type="button" id="btnCopyShoppingList" class="btn btn-secondary btn-sm" title="Copy text to clipboard">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+              <span>Copy to Clipboard</span>
+            </button>
+            <button type="button" id="btnUncheckAllShopping" class="btn btn-ghost btn-sm" title="Uncheck all items">
+              Uncheck All
+            </button>
+          </div>
+        </div>
+
+        <!-- Shopping List Items Container -->
+        <div id="shoppingItemsList" class="shopping-items-list">
+          <!-- Dynamically populated checklist items -->
+        </div>
+
+        <div id="shoppingEmptyState" class="shopping-empty-state" style="display: none;">
+          <div class="empty-icon">🥗</div>
+          <h4>No meals scheduled yet</h4>
+          <p>Drag or assign recipes to your weekly calendar, then return here to generate your shopping checklist!</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-close-modal="shoppingListModal">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Confirmation Dialog (Clear Week / Delete Recipe) -->
+  <div id="confirmModal" class="modal-backdrop" aria-hidden="true">
+    <div class="modal-dialog modal-sm" role="dialog" aria-labelledby="confirmTitle">
+      <div class="modal-drag-indicator"></div>
+      <div class="modal-header">
+        <h3 id="confirmTitle">Please Confirm</h3>
+        <button class="btn-close-modal" data-close-modal="confirmModal" aria-label="Close modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p id="confirmMessage">Are you sure you want to proceed?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="btnCancelConfirm">Cancel</button>
+        <button type="button" class="btn btn-danger" id="btnProceedConfirm">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
