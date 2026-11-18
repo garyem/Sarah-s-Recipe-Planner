@@ -123,6 +123,8 @@ meal-planner/
 
 ---
 
-## 📄 License
+## Copyright & License
 
-This project is licensed under the [MIT License](LICENSE) — free to use, modify, and share.
+Copyright © 2026 GaryM. All rights reserved.
+
+This project is proprietary software. No part of this codebase may be copied, modified, distributed, or used without explicit written permission from the copyright holder.
